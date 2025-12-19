@@ -9,6 +9,7 @@ typedef struct { //Necesito un struct para saber la posición de cada componente
 }Posicion;
 
 
+
 void dibujartablero(int offsety, int offsetx){
     for(int i = 0; i< 20 ; i++){
         mvaddch(offsety +i,offsetx,'#');
@@ -21,6 +22,21 @@ void dibujartablero(int offsety, int offsetx){
     }
 
     
+}
+
+bool colisiona (Posicion s[], int longitud, int offsetx, int offsety){
+    bool colis = false;
+    Posicion cabeza = s[0];
+    if(cabeza.x <= offsetx || cabeza.x >= offsetx+40 || cabeza.y<= offsety || cabeza.y >= offsety+20) return true;
+
+    for(int i =1; i<longitud; i++){
+        if(cabeza.x == s[i].x && cabeza.y == s[i].y ){
+            colis = true;
+            break;
+        }
+    }
+
+    return colis;
 }
 
 int aleatorio(int min, int max){
@@ -125,7 +141,13 @@ int main(){
         mvprintw(pos_y,pos_x,"*");
         s[0].y = pos_y; s[0].x = pos_x;
 
+        //Comprueba colisión de la cabeza
+        if(colisiona(s,longitud,offsetx,offsety)){
+            usleep(2000000);
+            break;
+        }
         
+        //Dibuja la cola
         for(int i = 1; i<longitud; i++){
             mvprintw(p_anty,p_antx,"*");
             int auxx = p_antx; int auxy = p_anty;
