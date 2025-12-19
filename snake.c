@@ -9,10 +9,46 @@ typedef struct { //Necesito un struct para saber la posición de cada componente
 }Posicion;
 
 
+void dibujartablero(int offsety, int offsetx){
+    for(int i = offsety; i< 20 ; i++){
+        mvaddch(i,offsetx,'#');
+        mvaddch(i,offsetx+40,'#');
+    }
+
+    for(int i = offsetx; i< 58 ; i++){
+        mvaddch(offsety,i,'#');
+        mvaddch(offsety+15,i,'#');
+    }
+
+    refresh();
+}
+
 int aleatorio(int min, int max){
     //Debería comprobar que no hay una cola por ahí!!
     return min + rand() % (max-min +1);
 }
+
+Posicion frutaaleatorio(int max_x, int max_y,Posicion s[], int longitud){
+    //Debería comprobar que no hay una cola por ahí!!
+    Posicion fruta;
+    bool valido;
+    do{
+        valido = true;
+        fruta.x = aleatorio(0,max_x/2) *2;
+        fruta.y = aleatorio(0,max_y-1);
+        
+        for(int i =0; i<longitud; i++){
+            if(s[i].x == fruta.x && s[i].y == fruta.y){
+                valido = false;
+                break;
+            }
+        }
+    }while(!valido);
+    
+    
+    return fruta;
+}
+
 
 bool colfruta(int posy, int posx, Posicion fruta){
     return abs(fruta.x - posx) <= 1 && fruta.y == posy;
@@ -20,7 +56,7 @@ bool colfruta(int posy, int posx, Posicion fruta){
 
 int main(){
     int ch;
-    int max_y, max_x;
+    int max_y = 20, max_x = 40;
 
     Posicion s[50];
     Posicion fruta; 
@@ -35,13 +71,17 @@ int main(){
     curs_set(0); //Para que no se vea el cursor
     getmaxyx(stdscr, max_y, max_x);//Obtiene el alto y ancho de la pantalla
 
+    
+    int offsetx = (max_x-40)/2;
+    int offsety = (max_y- 20)/2;
+
     //#######Juego########
     
     int pos_y = max_y/2;
     int pos_x = max_x/2;
     s[0].x = pos_x;  s[0].y = pos_y; // Cabeza
     s[1].x = pos_x-1; s[1].y = pos_y; //Primera cola
-    fruta.x = aleatorio(0,max_x-1)*2; fruta.y = aleatorio(0,max_y-1); //Obtiene la posicion de la fruta
+    fruta = frutaaleatorio(max_x,max_y,s,longitud);
 
     int dir_x =1;
     int dir_y =0;
@@ -100,12 +140,13 @@ int main(){
             s[longitud-1].x = p_antx;
             
             //Debe hacer aparecer otra fruta
-            fruta.x = fruta.x = aleatorio(0,max_x-1); fruta.y = aleatorio(0,max_y-1);
+            fruta = frutaaleatorio(max_x,max_y,s,longitud);
             
 
         }
         
         mvaddch(fruta.y, fruta.x, '@');
+        // dibujartablero(offsety,offsetx);
         refresh();
         clear();
         usleep(100000); //Se detiene 0,1 segundos
