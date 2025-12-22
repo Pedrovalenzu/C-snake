@@ -2,6 +2,7 @@
 #include <unistd.h>  // Para usleep()
 #include <stdlib.h> 
 #include <time.h>    
+#include <stdio.h>
 
 typedef struct { //Necesito un struct para saber la posición de cada componente de la serpiente
     int x;
@@ -22,6 +23,11 @@ void dibujartablero(int offsety, int offsetx){
     }
 
     
+}
+
+void mostrarpunt(int punt, int maxpunt, int offsetx, int offsety){
+    mvprintw(offsety + 7, offsetx - 18, "Score: %d", punt);
+    mvprintw(offsety + 9, offsetx - 18, "Highscore: %d", maxpunt);
 }
 
 bool colisiona (Posicion s[], int longitud, int offsetx, int offsety){
@@ -71,10 +77,17 @@ bool colfruta(int posy, int posx, Posicion fruta){
 }
 
 int main(){
+    FILE *archivo;
+    archivo = fopen("highscore.sav", "r");
     int ch;
     int max_y = 20, max_x = 40;
+    int punt = 0;
+    int maxpunt = 0;
+    if(archivo != NULL && fscanf(archivo,"%d",&maxpunt) != 1){
+        maxpunt = 0;
+    }
 
-    Posicion s[50];
+    Posicion s[100];
     Posicion fruta; 
     int longitud = 2; //Longitud actual de la serpiente
 
@@ -160,6 +173,7 @@ int main(){
         //Comprueba si consigue una fruta
         if(colfruta(s[0].y,s[0].x, fruta)){
             longitud++;
+            punt += 10;
             mvprintw(p_anty,p_antx,"*");
             s[longitud-1].y = p_anty;
             s[longitud-1].x = p_antx;
@@ -172,10 +186,15 @@ int main(){
         
         
         mvaddch(fruta.y, fruta.x, '@');
-        
+        mostrarpunt(punt,maxpunt,offsetx,offsety);
         refresh();
         
         usleep(100000); //Se detiene 0,1 segundos
+    }
+    if(punt > maxpunt){
+        maxpunt= punt;
+        archivo = fopen("highscore.sav","w");
+        fprintf(archivo,"%d",maxpunt);
     }
     endwin();
 }
