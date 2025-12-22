@@ -3,6 +3,7 @@
 #include <stdlib.h> 
 #include <time.h>    
 #include <stdio.h>
+#include <string.h>
 
 typedef struct { //Necesito un struct para saber la posición de cada componente de la serpiente
     int x;
@@ -76,7 +77,34 @@ bool colfruta(int posy, int posx, Posicion fruta){
     return abs(fruta.x - posx) <= 1 && fruta.y == posy;
 }
 
-int main(){
+
+void procesarargs(int argc, char *argv[], int *tema){
+    for(int i=1; i<argc;i++){
+        if(strcmp(argv[i],"-t") == 0){
+            if(strcmp(argv[i+1],"r") == 0){
+                *tema = 1; 
+            }else if(strcmp(argv[i+1],"b") == 0){
+                *tema = 2;
+            }else if(strcmp(argv[i+1],"g")== 0){
+                *tema =3;
+            }else if(strcmp(argv[i+1],"y")== 0){
+                *tema = 4;
+            }
+        }
+    }
+}
+
+void colores (int tema){
+    start_color();
+    init_pair(1,COLOR_RED,COLOR_BLACK);
+    init_pair(2,COLOR_BLUE,COLOR_BLACK);
+    init_pair(3,COLOR_GREEN,COLOR_BLACK);
+    init_pair(4,COLOR_YELLOW,COLOR_BLACK);
+    
+    attron(COLOR_PAIR(tema));
+}
+
+int main(int argc, char * argv[]){
     FILE *archivo;
     archivo = fopen("highscore.sav", "r");
     int ch;
@@ -91,6 +119,7 @@ int main(){
     Posicion fruta; 
     int longitud = 2; //Longitud actual de la serpiente
 
+    int tema =0; //0: Default 1:Rojo 2: Azul 3: Verde
     int gameover = false;
     initscr(); // Inicia la terminal en modo curses
     cbreak(); //cada carácter se lee inmediatamente (menos el ctrl+ c)
@@ -103,7 +132,10 @@ int main(){
     
     int offsetx = (max_x-40)/2;
     int offsety = (max_y- 20)/2;
-
+    procesarargs(argc,argv, &tema);
+    if(tema>0 && tema<=4){
+        colores(tema);
+    }
     //#######Juego########
     
     int pos_y = max_y/2;
@@ -196,5 +228,6 @@ int main(){
         archivo = fopen("highscore.sav","w");
         fprintf(archivo,"%d",maxpunt);
     }
+    if(tema!=0) attroff(COLOR_PAIR(tema));
     endwin();
 }
